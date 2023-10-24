@@ -5,8 +5,10 @@ import { PaperProvider, useTheme } from 'react-native-paper';
 import { Provider } from 'react-redux';
 
 import { store } from './store';
+import Playground from '../screens/PlaygroundScreen'
 import TodoDetails from '../screens/TodoDetailsScreen';
 import TodoList from '../screens/TodoListScreen';
+import { Screen } from '../types';
 
 const Stack = createStackNavigator();
 
@@ -20,19 +22,23 @@ const makeTitle = (subTitle?: string) => {
   return `${APP_TITLE} - ${subTitle}`;
 };
 
+// prettier-ignore
+const displayOrder: Screen[] = [
+  Playground, 
+  TodoList, 
+  TodoDetails
+];
+
 const NavigationStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name={TodoList.name}
-        options={{ title: makeTitle(TodoList.subTitle) }}
-        component={TodoList.screen}
-      />
-      <Stack.Screen
-        name={TodoDetails.name}
-        options={{ title: makeTitle(TodoDetails.subTitle) }}
-        component={TodoDetails.screen}
-      />
+      {displayOrder.map(screen => (
+        <Stack.Screen
+          name={screen.name}
+          options={{ title: makeTitle(screen.subTitle) }}
+          component={screen.screen}
+        />
+      ))}
     </Stack.Navigator>
   );
 };
