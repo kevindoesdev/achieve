@@ -1,13 +1,14 @@
-import { View, StyleSheet, Platform, Pressable } from "react-native";
-import { IconButton, Text, Chip } from "react-native-paper";
-import { Id, Todo } from "../../types";
-import { selectTagById } from '../tags/slice'
-import { notEmpty } from "../../utils";
-import { useAppSelector } from "../../app/hooks";
+import { View, StyleSheet, Platform, Pressable } from 'react-native';
+import { IconButton, Text, Chip } from 'react-native-paper';
+
+import { useAppSelector } from '../../app/hooks';
+import { Id, Todo } from '../../types';
+import { notEmpty } from '../../utils';
+import { selectTagById } from '../tags/slice';
 
 interface TodoListItemProps {
-  item: Todo,
-  onItemPress: (id: Id) => void
+  item: Todo;
+  onItemPress: (id: Id) => void;
 }
 
 const TodoListItem = ({ item, onItemPress }: TodoListItemProps) => {
@@ -16,8 +17,10 @@ const TodoListItem = ({ item, onItemPress }: TodoListItemProps) => {
   return (
     <View key={item.id} style={styles.container}>
       <IconButton icon="checkbox-blank-outline" size={24} />
-      <Pressable onPress={() => {
-        onItemPress(item.id)}}>
+      <Pressable
+        onPress={() => {
+          onItemPress(item.id);
+        }}>
         {labelOnly ? (
           <LabelOnly label={item.label} />
         ) : (
@@ -31,28 +34,26 @@ const TodoListItem = ({ item, onItemPress }: TodoListItemProps) => {
 TodoListItem.defaultProps = { onItemPress: () => {} };
 
 interface CompositeProps {
-  item: Todo
+  item: Todo;
 }
 
 const Composite = ({ item }: CompositeProps) => {
-  
-  const tags = useAppSelector((state) => {
-    return item.tags.map(tagId => selectTagById(state, tagId)).filter(notEmpty)
-  })
-  
+  const tags = useAppSelector(state => {
+    return item.tags.map(tagId => selectTagById(state, tagId)).filter(notEmpty);
+  });
+
   return (
     <View>
       <Text style={{}} variant="titleMedium">
         {item.label}
       </Text>
-      <View style={{ flexDirection: "row" }}>
-        {tags.map((tag) => (
+      <View style={{ flexDirection: 'row' }}>
+        {tags.map(tag => (
           <Chip
             key={tag.label}
             style={{ marginHorizontal: 4 }}
             compact={true}
-            elevated={true}
-          >
+            elevated={true}>
             {tag.label}
           </Chip>
         ))}
@@ -62,7 +63,7 @@ const Composite = ({ item }: CompositeProps) => {
 };
 
 interface LabelOnlyProps {
-  label: string
+  label: string;
 }
 
 const LabelOnly = ({ label }: LabelOnlyProps) => (
@@ -75,21 +76,21 @@ const LabelOnly = ({ label }: LabelOnlyProps) => (
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: 16,
-    borderBottomColor: "grey",
-    borderStyle: "dotted",
+    borderBottomColor: 'grey',
+    borderStyle: 'dotted',
     borderBottomWidth: 1,
     paddingBottom: 16,
   },
   labelOnlyTextContainer: Object.assign(
     {
-      flexDirection: "column",
+      flexDirection: 'column',
       flex: 1,
     },
-    Platform.OS === "web" ? { paddingTop: 14 } : {}
+    Platform.OS === 'web' ? { paddingTop: 14 } : {},
   ),
-  labelOnlyText: { flex: 1, verticalAlign: "middle" },
+  labelOnlyText: { flex: 1, verticalAlign: 'middle' },
 } as any);
 
 export default TodoListItem;

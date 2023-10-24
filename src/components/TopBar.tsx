@@ -1,7 +1,7 @@
-import { View } from "react-native";
-import { useTheme, IconButton } from "react-native-paper";
+import { View } from 'react-native';
+import { useTheme, IconButton } from 'react-native-paper';
 
-const TopBar = ({ icon, onPress }: { icon: string, onPress: () => void}) => {
+const TopBar = ({ icon, onPress }: { icon: string; onPress: () => void }) => {
   const theme = useTheme();
 
   return (

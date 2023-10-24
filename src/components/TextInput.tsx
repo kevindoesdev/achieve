@@ -1,18 +1,12 @@
-import { TextInput as PaperTextInput } from "react-native-paper";
-import { TextInput as RNTextInput } from "react-native";
-import { useState, useRef } from "react";
+import { useState, useRef } from 'react';
+import { TextInput as RNTextInput } from 'react-native';
+import { TextInput as PaperTextInput } from 'react-native-paper';
 
 interface Props {
-  placeholder?: string,
-  text: string,
-  onChangeText: (text: string) => void,
-  onEndEditing: (text: string) => void
-}
-
-enum FocusBlur {
-  Idle = 'idle',
-  Focus = 'focus',
-  Blur = 'blur'
+  placeholder?: string;
+  text: string;
+  onChangeText: (text: string) => void;
+  onEndEditing: (text: string) => void;
 }
 
 export const TextInput = ({ placeholder, text, onEndEditing }: Props) => {
@@ -21,15 +15,15 @@ export const TextInput = ({ placeholder, text, onEndEditing }: Props) => {
   const [value, setValue] = useState(text);
   const inputRef = useRef<RNTextInput>(null);
   const [blurringInProgress, _setBlurringInProgress] = useState(false);
-  
+
   const setBlurringInProgress = () => {
     _setBlurringInProgress(true);
     setTimeout(() => {
-      _setBlurringInProgress(false)
+      _setBlurringInProgress(false);
       setTimeout(() => onEndEditing(value), 10000);
-    }, 100)
-  }
-  
+    }, 100);
+  };
+
   return (
     <PaperTextInput
       placeholder={placeholder}
@@ -38,7 +32,7 @@ export const TextInput = ({ placeholder, text, onEndEditing }: Props) => {
       ref={inputRef}
       outlineStyle={{ borderWidth: 0 }}
       style={{
-        backgroundColor: "rgba(0, 0, 0, 0.0)",
+        backgroundColor: 'rgba(0, 0, 0, 0.0)',
         fontSize: 20,
       }}
       onFocus={() => {
@@ -49,22 +43,22 @@ export const TextInput = ({ placeholder, text, onEndEditing }: Props) => {
         setBlurringInProgress();
         setEditing(false);
       }}
-      onChangeText={(text) => {
-        setValue(text)
+      onChangeText={text => {
+        setValue(text);
       }}
       onEndEditing={() => {
         // onEditEditing is never called on web
-        console.log('onEndEditing')
+        console.log('onEndEditing');
       }}
       left={
         <PaperTextInput.Icon
           style={{ top: -8 }}
-          icon={editing ? "close" : "pencil"}
+          icon={editing ? 'close' : 'pencil'}
           forceTextInputFocus={false}
           onPress={() => {
-            console.log('onPress blockRefocus', blurringInProgress)
+            console.log('onPress blockRefocus', blurringInProgress);
             if (blurringInProgress) {
-              console.log('valueSnapshot', valueSnapshot)
+              console.log('valueSnapshot', valueSnapshot);
               setValue(valueSnapshot);
             } else if (!blurringInProgress) {
               (inputRef as any).current.focus();
