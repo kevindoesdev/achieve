@@ -5,7 +5,7 @@ import { PaperProvider, useTheme } from 'react-native-paper';
 import { Provider } from 'react-redux';
 
 import { store } from './store';
-import Playground from '../screens/PlaygroundScreen'
+import Playground from '../screens/PlaygroundScreen';
 import TodoDetails from '../screens/TodoDetailsScreen';
 import TodoList from '../screens/TodoListScreen';
 import { Screen } from '../types';
@@ -34,6 +34,7 @@ const NavigationStack = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {displayOrder.map(screen => (
         <Stack.Screen
+          key={screen.name}
           name={screen.name}
           options={{ title: makeTitle(screen.subTitle) }}
           component={screen.screen}

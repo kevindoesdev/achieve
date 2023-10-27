@@ -5,5 +5,6 @@ export interface Bench {
 
 export interface Experiment {
   title: string;
-  content: React.ReactNode;
+  description: string;
+  content: () => React.ReactNode;
 }

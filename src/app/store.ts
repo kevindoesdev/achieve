@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import playgroundReducer from '../features/playground/slice';
 import tagsReducer from '../features/tags/slice';
 import todosReducer from '../features/todos/slice';
 
 export const store = configureStore({
   reducer: {
+    playground: playgroundReducer,
     todos: todosReducer,
     tags: tagsReducer,
   },

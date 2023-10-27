@@ -1,49 +1,35 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 
+import { Divider } from './Divider';
+import { bench as stateUpdateBench } from './stateUpdates';
 import { Bench } from './types';
+import { Spacer } from './Spacer';
 
-const benches: Bench[] = [
-  {
-    title: 'State Updates',
-    experiments: [
-      {
-        title: 'Block 1',
-        content: <></>,
-      },
-      {
-        title: 'Block 2',
-        content: <></>,
-      },
-      {
-        title: 'Block 3',
-        content: <></>,
-      },
-    ],
-  },
-  {
-    title: 'Next one',
-    experiments: [{ title: 'Experiment', content: <></> }],
-  },
-];
+const benches: Bench[] = [stateUpdateBench];
 
 const Playground = () => {
   return (
-    <View style={{ padding: 16 }}>
+    <ScrollView style={{ padding: 16 }}>
       {benches.map(bench => (
-        <View style={styles.bench}>
+        <View key={bench.title} style={styles.bench}>
           <Text variant="headlineMedium">{bench.title}</Text>
           <View style={styles.experimentBench}>
             {bench.experiments.map(experiment => (
-              <Surface style={styles.experiment}>
-                <Text variant="titleMedium">{experiment.title}</Text>
-                {experiment.content}
+              <Surface
+                key={`${bench.title}-${experiment.title}`}
+                style={styles.experiment}>
+                <Text variant="titleLarge">{experiment.title}</Text>
+                <Text variant="titleSmall">{experiment.description}</Text>
+                <Divider />
+                {experiment.content()}
               </Surface>
             ))}
           </View>
         </View>
       ))}
-    </View>
+      <Spacer height={100} />
+    </ScrollView>
   );
 };
 
@@ -59,6 +45,7 @@ const styles = StyleSheet.create({
     margin: 8,
     padding: 8,
     minHeight: 100,
-    minWidth: 200,
+    width: '100%',
+    maxWidth: 420,
   },
 });
