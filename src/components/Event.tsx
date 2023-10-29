@@ -8,13 +8,20 @@ import {
 import { Button } from 'react-native-paper';
 import type { Props as ButtonProps } from 'react-native-paper/lib/typescript/components/Button/Button';
 
-export interface EventProps {
-  onActivate: (context?: any) => void;
+export interface EventContext {
+  event?: string;
+  payload: any;
 }
+
+export interface EventProps {
+  onEvent: (context: EventContext) => void;
+}
+
+const EventNameContext = createContext('');
 
 export const Event = ({
   children,
-  onActivate,
+  onEvent,
 }: React.PropsWithChildren<EventProps>) => {
   const [eventName] = useState(`event-context-${nanoid()}`);
   const [listener, setListener] = useState(
@@ -24,12 +31,9 @@ export const Event = ({
   // on mount
   useEffect(() => {
     setListener(
-      DeviceEventEmitter.addListener(eventName, data => {
-        if (data.type === 'activate' && onActivate) {
-          onActivate(data.context);
-        }
-      }),
+      DeviceEventEmitter.addListener(eventName, data => onEvent?.(data)),
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -47,26 +51,28 @@ export const Event = ({
 };
 
 export interface EventButtonProps extends ButtonProps {
-  eventContent?: any;
+  event?: string;
+  payload: any;
+  onPress?: (e: GestureResponderEvent) => boolean | null | undefined;
 }
 
 const EventButton = (props: EventButtonProps) => {
   const eventName = useContext(EventNameContext);
 
-  const onPress = (e: GestureResponderEvent) => {
-    DeviceEventEmitter.emit(eventName, {
-      type: 'activate',
-      context: props.eventContent,
-    });
+  const context: EventContext = {
+    event: props.event || 'default',
+    payload: props.payload,
+  };
 
-    if (props?.onPress) {
-      props.onPress(e);
+  const onPress = (e: GestureResponderEvent) => {
+    if (props?.onPress?.(e) === false) {
+      return;
     }
+
+    DeviceEventEmitter.emit(eventName, context);
   };
 
   return <Button {...props} onPress={onPress} />;
 };
 
 Event.Button = EventButton;
-
-const EventNameContext = createContext('');

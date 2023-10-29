@@ -3,5 +3,5 @@ import { experiment as WrapperListeners } from './WrapperListeners';
 
 export const bench = {
   title: 'Components',
-  experiments: [EventListeners, WrapperListeners],
+  experiments: [WrapperListeners, EventListeners],
 };

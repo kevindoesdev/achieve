@@ -1,35 +1,28 @@
-import { View } from 'react-native';
-
-import { Event } from '../../../components/Event';
+import { Event, EventContext } from '../../../components/Event';
+import { Divider } from '../Divider';
+import { Spacer } from '../Spacer';
 import { Experiment } from '../types';
 
 const EventListeners = () => {
+  const onEvent = ({ event, payload }: EventContext) =>
+    console.log(`Event fired (${event}): ${payload}`);
+
   return (
     <>
-      <Event onActivate={context => console.log('event activated ', context)}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-          <Event.Button mode="contained" eventContent={'button-1'}>
-            Button 1
-          </Event.Button>
-          <Event.Button mode="contained" eventContent={'button-2'}>
-            Button 2
-          </Event.Button>
-        </View>
+      <Event onEvent={onEvent}>
+        <Event.Button mode="contained" event="activate" payload={'Activated!'}>
+          Event 1 - Activate Event
+        </Event.Button>
+        <Spacer />
+        <Event.Button mode="contained" event="cancel" payload={'Cancelled'}>
+          Event 1 - Cancel Event
+        </Event.Button>
       </Event>
-      <Event onActivate={context => console.log('event activated ', context)}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            marginTop: 8,
-          }}>
-          <Event.Button mode="contained" eventContent={'button-3'}>
-            Button 3
-          </Event.Button>
-          <Event.Button mode="contained" eventContent={'button-4'}>
-            Button 4
-          </Event.Button>
-        </View>
+      <Divider />
+      <Event onEvent={onEvent}>
+        <Event.Button mode="contained" payload={'You pressed the button!'}>
+          Event 2 - Default Event
+        </Event.Button>
       </Event>
     </>
   );
