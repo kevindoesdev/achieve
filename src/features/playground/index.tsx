@@ -2,11 +2,12 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 
 import { Divider } from './Divider';
-import { bench as stateUpdateBench } from './stateUpdates';
-import { Bench } from './types';
 import { Spacer } from './Spacer';
+import { bench as stateUpdateBench } from './stateUpdates';
+import { bench as componentsBench } from './components';
+import { Bench } from './types';
 
-const benches: Bench[] = [stateUpdateBench];
+const benches: Bench[] = [componentsBench, stateUpdateBench];
 
 const Playground = () => {
   return (

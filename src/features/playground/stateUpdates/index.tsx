@@ -1,7 +1,12 @@
-import { experiment as insertOrFetch } from './InsertOrFetch';
-import { experiment as sequencedUseStateUpdate } from './SequencedUseStateUpdate';
+import { experiment as InsertOrFetchComponent } from './InsertOrFetchComponent';
+import { experiment as InsertOrFetchExplicit } from './InsertOrFetchExplicit';
+import { experiment as SequencedUseStateUpdate } from './SequencedUseStateUpdate';
 
 export const bench = {
   title: 'State Updates',
-  experiments: [insertOrFetch, sequencedUseStateUpdate],
+  experiments: [
+    InsertOrFetchComponent,
+    InsertOrFetchExplicit,
+    SequencedUseStateUpdate,
+  ],
 };
