@@ -159,8 +159,6 @@ export const InsertOrFetch = ({
   const [readyToFire, setReadyToFire] = useState(false);
 
   useEffect(() => {
-    console.log('selectedValue', selectedValue);
-    console.log('readyToFire', readyToFire);
     if (selectedValue == null && ignoreNull) {
       return;
     }

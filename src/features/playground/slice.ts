@@ -47,9 +47,7 @@ export const insertIfMissingDelayed = createAsyncThunk(
   'playground/insertIfMissingDelayed',
   // The payload creator receives the partial `{title, content, user}` object
   async (value: string, thunkAPI) => {
-    console.log('before await', value);
     await new Promise(r => setTimeout(r, 1000));
-    console.log('after await', value);
 
     thunkAPI.dispatch(insertIfMissing(value));
   },
@@ -72,7 +70,6 @@ const slice = createSlice({
         }
       },
       prepare: (value: string) => {
-        console.log('preparing ', value);
         return {
           payload: {
             id: nanoid(),

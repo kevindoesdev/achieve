@@ -7,7 +7,11 @@ import { bench as componentsBench } from './components';
 import { bench as stateUpdateBench } from './stateUpdates';
 import { Bench } from './types';
 
-const benches: Bench[] = [stateUpdateBench, componentsBench];
+const benches: Bench[] = [
+  // random comment to prevent inlining
+  componentsBench,
+  stateUpdateBench,
+];
 
 const Playground = () => {
   return (
