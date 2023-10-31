@@ -1,12 +1,19 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { GestureResponderEvent, View } from 'react-native';
+import { ButtonProps, Text, TextInput } from 'react-native-paper';
 
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
+import { RootState } from '../../../app/store';
+import { Event, EventContext } from '../../../components/Event';
 import { Divider } from '../Divider';
 import { Spacer } from '../Spacer';
 import { TextValue } from '../TextValue';
-import { selectAllIoF, selectIoFByValue, insertIfMissing } from '../slice';
+import {
+  selectAllIoF,
+  selectIoFByValue,
+  insertIfMissing,
+  insertIfMissingDelayed,
+} from '../slice';
 import { Experiment } from '../types';
 
 const LABEL_WIDTH = 120;
@@ -44,39 +51,37 @@ interface BodyProps {
 const Body = ({ onSelected }: BodyProps) => {
   const [value, setValue] = useState('');
   const [fieldValue, setFieldValue] = useState('');
-  const [fireOnSelectWhenReady, setFireOnSelectWhenReady] = useState(false);
+  const [valueSelectedId, setValueSelectedId] = useState(
+    null as unknown as string,
+  );
 
   const allItems = useAppSelector(selectAllIoF);
   const fieldValueSelectedId = useAppSelector(
     state => selectIoFByValue(state, fieldValue)?.id,
   );
 
-  const valueSelectedId = useAppSelector(
-    state => selectIoFByValue(state, value)?.id,
-  );
+  const selectedIdSelector = (value: string) => (state: RootState) =>
+    selectIoFByValue(state, value)?.id;
 
   const dispatch = useAppDispatch();
 
   const onPress = () => {
-    setFireOnSelectWhenReady(false);
     setValue(fieldValue);
     dispatch(insertIfMissing(fieldValue));
-    setFireOnSelectWhenReady(true);
   };
 
-  useEffect(() => {
-    if (fireOnSelectWhenReady && valueSelectedId != null) {
-      onSelected(valueSelectedId);
-      setFireOnSelectWhenReady(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [valueSelectedId, fireOnSelectWhenReady]);
+  const onPressAsync = async () => {
+    setValue(fieldValue);
+    await dispatch(insertIfMissingDelayed(fieldValue));
+  };
 
   return (
     <InsertOrFetch
-      value={valueSelectedId}
-      active={fireOnSelectWhenReady}
-      onValueSet={value => console.log(`=== ${value}`)}>
+      selector={selectedIdSelector(value)}
+      onReady={id => {
+        setValueSelectedId(id);
+        onSelected(id);
+      }}>
       {allItems.map(item => (
         <TextValue
           label={item.value}
@@ -108,9 +113,19 @@ const Body = ({ onSelected }: BodyProps) => {
       />
       <Spacer />
       <View style={{ width: 200, marginHorizontal: 'auto', marginBottom: 8 }}>
-        <Button mode="contained" onPress={onPress}>
-          Use value
-        </Button>
+        <InsertOrFetch.Button
+          event={InsertOrFetchEvents.Activate}
+          mode="contained"
+          onPress={onPress}>
+          Use value (sync)
+        </InsertOrFetch.Button>
+        <Spacer />
+        <InsertOrFetch.Button
+          event={InsertOrFetchEvents.Activate}
+          mode="contained"
+          onPress={onPressAsync}>
+          Use value (async)
+        </InsertOrFetch.Button>
       </View>
     </InsertOrFetch>
   );
@@ -124,32 +139,59 @@ export const experiment: Experiment = {
 };
 
 export interface InsertOrFetchProps {
-  value: any;
   ignoreNull?: boolean;
-  active: boolean;
-  onValueSet: (value: any) => void;
+  selector: (state: RootState) => any;
+  onReady: (value: any) => void;
+}
+
+export enum InsertOrFetchEvents {
+  Activate = 'activate',
+  Deactivate = 'deactivate',
 }
 
 export const InsertOrFetch = ({
   ignoreNull = true,
-  onValueSet = () => {},
-  value,
+  selector,
+  onReady = () => {},
   children,
 }: PropsWithChildren<InsertOrFetchProps>) => {
-  const [active, setActive] = useState(false);
+  const selectedValue = useAppSelector(selector);
+  const [readyToFire, setReadyToFire] = useState(false);
 
   useEffect(() => {
-    if (!active) {
+    console.log('selectedValue', selectedValue);
+    console.log('readyToFire', readyToFire);
+    if (selectedValue == null && ignoreNull) {
       return;
     }
 
-    if (ignoreNull && value == null) {
-      return;
+    if (readyToFire) {
+      setReadyToFire(false);
+      onReady(selectedValue);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedValue, readyToFire]);
 
-    onValueSet(value);
-    setActive(false);
-  }, [active, value]);
+  const onEvent = ({ event }: EventContext) => {
+    if (event === InsertOrFetchEvents.Activate) {
+      setReadyToFire(true);
+    } else {
+      setReadyToFire(false);
+    }
+  };
 
-  return <View>{children}</View>;
+  return <Event onEvent={onEvent}>{children}</Event>;
 };
+
+export interface InsertOrFetchButtonProps extends ButtonProps {
+  event: InsertOrFetchEvents;
+  onPress?:
+    | ((e: GestureResponderEvent) => boolean | void | Promise<void>)
+    | (() => boolean | void | Promise<void>);
+}
+
+const InsertOrFetchButton = (props: InsertOrFetchButtonProps) => {
+  return <Event.Button {...props} />;
+};
+
+InsertOrFetch.Button = InsertOrFetchButton;

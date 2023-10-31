@@ -3,6 +3,7 @@ import {
   createSlice,
   nanoid,
   createSelector,
+  createAsyncThunk,
 } from '@reduxjs/toolkit';
 
 import { RootState } from '../../app/store';
@@ -42,6 +43,18 @@ export const initialState: PlaygroundState = {
   ]),
 };
 
+export const insertIfMissingDelayed = createAsyncThunk(
+  'playground/insertIfMissingDelayed',
+  // The payload creator receives the partial `{title, content, user}` object
+  async (value: string, thunkAPI) => {
+    console.log('before await', value);
+    await new Promise(r => setTimeout(r, 1000));
+    console.log('after await', value);
+
+    thunkAPI.dispatch(insertIfMissing(value));
+  },
+);
+
 const slice = createSlice({
   name: 'playground',
   initialState,
@@ -58,12 +71,15 @@ const slice = createSlice({
           state.insertOrFetch[action.payload.id] = action.payload;
         }
       },
-      prepare: (value: string) => ({
-        payload: {
-          id: nanoid(),
-          value,
-        },
-      }),
+      prepare: (value: string) => {
+        console.log('preparing ', value);
+        return {
+          payload: {
+            id: nanoid(),
+            value,
+          },
+        };
+      },
     },
   },
 });

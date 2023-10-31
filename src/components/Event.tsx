@@ -52,8 +52,10 @@ export const Event = ({
 
 export interface EventButtonProps extends ButtonProps {
   event?: string;
-  payload: any;
-  onPress?: (e: GestureResponderEvent) => boolean | null | undefined;
+  payload?: any;
+  onPress?:
+    | ((e: GestureResponderEvent) => boolean | void | Promise<void>)
+    | (() => boolean | void | Promise<void>);
 }
 
 const EventButton = (props: EventButtonProps) => {

@@ -3,11 +3,11 @@ import { Text, Surface } from 'react-native-paper';
 
 import { Divider } from './Divider';
 import { Spacer } from './Spacer';
-import { bench as stateUpdateBench } from './stateUpdates';
 import { bench as componentsBench } from './components';
+import { bench as stateUpdateBench } from './stateUpdates';
 import { Bench } from './types';
 
-const benches: Bench[] = [componentsBench, stateUpdateBench];
+const benches: Bench[] = [stateUpdateBench, componentsBench];
 
 const Playground = () => {
   return (

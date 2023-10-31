@@ -31,6 +31,6 @@ const EventListeners = () => {
 export const experiment: Experiment = {
   title: 'Event Listeners',
   description:
-    'Uses DeviceEventEmitter (deprecated) to bubble events using a key defined by a Context',
+    'Uses the project Event Component to fire events through to a common event handler',
   content: EventListeners,
 };
