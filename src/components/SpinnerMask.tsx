@@ -31,13 +31,19 @@ export const SpinnerMask = ({
   const [delayTimeout, setDelayTimeout] = useState(
     null as unknown as NodeJS.Timeout,
   );
-  const [layout, setLayout] = useState({
+  const [size, setSize] = useState({
     left: 0,
     top: 0,
     width: 0,
     height: 0,
   });
   const [daRef, setDaRef] = useState(null as unknown as View | null);
+
+  const updateSize = () => {
+    daRef?.measure((_, __, width, height) => {
+      setSize({ left: 0, top: 0, width, height });
+    });
+  };
 
   useEffect(() => {
     clearTimeout(delayTimeout);
@@ -49,6 +55,7 @@ export const SpinnerMask = ({
         setDelayTimeout(setTimeout(r, delay));
       }).then(() => {
         fadeIn.resetAnimation();
+        updateSize();
         setVisibleDelayed(true);
       });
     }
@@ -74,39 +81,38 @@ export const SpinnerMask = ({
       : backgroundColor;
 
   return (
-    <>
-      <Portal>
-        {visibleDelayed ? (
-          <Animated.View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              ...maskStyle,
-              ...layout,
-              opacity: fadeIn,
-              backgroundColor: maskStyle.backgroundColor || useBackgroundColor,
-            }}>
-            <ActivityIndicator
-              animating={true}
-              size={layout.height * 0.4}
-              {...activityIndicator}
-            />
-          </Animated.View>
-        ) : (
-          <></>
-        )}
-      </Portal>
-      <View
-        ref={ref => {
-          setDaRef(ref);
-        }}
-        onLayout={() => {
-          daRef?.measure((_, __, width, height, x, y) => {
-            setLayout({ left: x, top: y, width, height });
-          });
-        }}>
-        {children}
-      </View>
-    </>
+    <View>
+      <Portal.Host>
+        <Portal>
+          {visibleDelayed ? (
+            <Animated.View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                ...maskStyle,
+                ...size,
+                opacity: fadeIn,
+                backgroundColor:
+                  maskStyle.backgroundColor || useBackgroundColor,
+              }}>
+              <ActivityIndicator
+                animating={true}
+                size={Math.min(size.width, size.height) * 0.3}
+                {...activityIndicator}
+              />
+            </Animated.View>
+          ) : (
+            <></>
+          )}
+        </Portal>
+        <View
+          ref={ref => {
+            setDaRef(ref);
+          }}
+          onLayout={updateSize}>
+          {children}
+        </View>
+      </Portal.Host>
+    </View>
   );
 };

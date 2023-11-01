@@ -5,6 +5,7 @@ import { ButtonProps, Text, TextInput } from 'react-native-paper';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
 import { RootState } from '../../../app/store';
 import { Event, EventContext } from '../../../components/Event';
+import { SpinnerMask } from '../../../components/SpinnerMask';
 import { Divider } from '../Divider';
 import { Spacer } from '../Spacer';
 import { TextValue } from '../TextValue';
@@ -66,11 +67,19 @@ const Body = ({ onSelected }: BodyProps) => {
   const dispatch = useAppDispatch();
 
   const onPress = () => {
+    if (!fieldValue) {
+      return false;
+    }
+
     setValue(fieldValue);
     dispatch(insertIfMissing(fieldValue));
   };
 
   const onPressAsync = async () => {
+    if (!fieldValue) {
+      return false;
+    }
+
     setValue(fieldValue);
     await dispatch(insertIfMissingDelayed(fieldValue));
   };
@@ -157,8 +166,13 @@ export const InsertOrFetch = ({
 }: PropsWithChildren<InsertOrFetchProps>) => {
   const selectedValue = useAppSelector(selector);
   const [readyToFire, setReadyToFire] = useState(false);
+  const [showMask, setShowMask] = useState(false);
 
   useEffect(() => {
+    if (readyToFire) {
+      setShowMask(true);
+    }
+
     if (selectedValue == null && ignoreNull) {
       return;
     }
@@ -166,9 +180,10 @@ export const InsertOrFetch = ({
     if (readyToFire) {
       setReadyToFire(false);
       onReady(selectedValue);
+      setShowMask(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedValue, readyToFire]);
+  }, [selectedValue, readyToFire, ignoreNull]);
 
   const onEvent = ({ event }: EventContext) => {
     if (event === InsertOrFetchEvents.Activate) {
@@ -178,14 +193,18 @@ export const InsertOrFetch = ({
     }
   };
 
-  return <Event onEvent={onEvent}>{children}</Event>;
+  return (
+    <Event onEvent={onEvent}>
+      <SpinnerMask visible={showMask}>{children}</SpinnerMask>
+    </Event>
+  );
 };
 
 export interface InsertOrFetchButtonProps extends ButtonProps {
   event: InsertOrFetchEvents;
   onPress?:
-    | ((e: GestureResponderEvent) => boolean | void | Promise<void>)
-    | (() => boolean | void | Promise<void>);
+    | ((e: GestureResponderEvent) => (boolean | void) | Promise<boolean | void>)
+    | (() => (boolean | void) | Promise<boolean | void>);
 }
 
 const InsertOrFetchButton = (props: InsertOrFetchButtonProps) => {

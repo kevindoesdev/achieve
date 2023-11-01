@@ -9,8 +9,8 @@ import { Bench } from './types';
 
 const benches: Bench[] = [
   // random comment to prevent inlining
-  componentsBench,
   stateUpdateBench,
+  componentsBench,
 ];
 
 const Playground = () => {

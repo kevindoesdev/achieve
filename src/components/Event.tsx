@@ -54,8 +54,8 @@ export interface EventButtonProps extends ButtonProps {
   event?: string;
   payload?: any;
   onPress?:
-    | ((e: GestureResponderEvent) => boolean | void | Promise<void>)
-    | (() => boolean | void | Promise<void>);
+    | ((e: GestureResponderEvent) => (boolean | void) | Promise<boolean | void>)
+    | (() => (boolean | void) | Promise<boolean | void>);
 }
 
 const EventButton = (props: EventButtonProps) => {
