@@ -44,3 +44,19 @@ export interface Tag extends Idable {
 export interface IndexOf<T> {
   [key: string]: T;
 }
+
+export interface RGBA {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
+export type RGBAPropertyModifier = number | ((original: number) => number);
+
+export interface RGBAModifier {
+  r?: RGBAPropertyModifier;
+  g?: RGBAPropertyModifier;
+  b?: RGBAPropertyModifier;
+  a?: RGBAPropertyModifier;
+}
