@@ -14,10 +14,10 @@ export const TodoListScreen = ({ navigation }: ScreenProps<object>) => {
   };
 
   return (
-    <View>
+    <>
       <TopBar icon="menu" />
       <TodoList items={todos} onItemPress={onItemPress} />
-    </View>
+    </>
   );
 };
 

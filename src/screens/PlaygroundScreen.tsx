@@ -6,7 +6,7 @@ export const PlaygroundScreen = ({ navigation }: ScreenProps<object>) => (
   <>
     <TopBar
       icon="keyboard-backspace"
-      onPress={() => navigation.navigate(Screens.TodoList)}
+      onIconPress={() => navigation.navigate(Screens.TodoList)}
     />
     <Playground />
   </>
