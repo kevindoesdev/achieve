@@ -1,8 +1,13 @@
-import { PayloadAction, createSlice, nanoid } from '@reduxjs/toolkit';
+import {
+  PayloadAction,
+  createSelector,
+  createSlice,
+  nanoid,
+} from '@reduxjs/toolkit';
 
 import { RootState } from '../../app/store';
 import { Id, IndexOf, Tag } from '../../types';
-import { toIndexOf } from '../../utils';
+import { toIndexOf, delayedDispatch } from '../../utils';
 
 export interface TagState {
   items: IndexOf<Tag>;
@@ -25,7 +30,7 @@ const slice = createSlice({
   name: 'tags',
   initialState,
   reducers: {
-    addTag: {
+    insertOrFetchTag: {
       reducer: (state, action: PayloadAction<Tag>) => {
         const tag = selectTagByValue(state, action.payload.label);
 
@@ -47,14 +52,32 @@ type State = RootState | TagState;
 
 const getTagState = (state: State): TagState => (state as any).tags || state;
 
-export const selectTags = (state: State) =>
-  Object.values(getTagState(state).items);
+const getTagItems = (state: State) => getTagState(state).items;
 
-export const selectTagById = (state: State, id: Id) =>
-  getTagState(state).items[id];
+export const selectTodoById = createSelector(
+  [getTagItems, (_: State, id: Id) => id],
+  (items, id) => items[id],
+);
 
-export const selectTagByValue = (state: State, label: string) =>
-  Object.values(getTagState(state).items).find(tag => tag.label === label);
+export const selectTags = createSelector(getTagItems, items =>
+  Object.values(items),
+);
+
+export const selectTagById = createSelector(
+  [getTagItems, (_: State, id: Id) => id],
+  (items, id) => items[id],
+);
+
+export const selectTagByValue = createSelector(
+  [getTagItems, (_: State, label: string) => label],
+  (items, label) => Object.values(items).find(tag => tag.label === label),
+);
 
 export default slice.reducer;
-//export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
+export const { insertOrFetchTag } = slice.actions;
+
+export const delayedInsertOrFetchTag = delayedDispatch(
+  'tags/delayedInsertOrFetchTag',
+  5000,
+  insertOrFetchTag,
+);

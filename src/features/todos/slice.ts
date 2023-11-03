@@ -1,8 +1,13 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit';
+import {
+  PayloadAction,
+  createSelector,
+  createSlice,
+  nanoid,
+} from '@reduxjs/toolkit';
 
 import { RootState } from '../../app/store';
 import { Id, IndexOf, Todo } from '../../types';
-import { notEmpty, toIndexOf } from '../../utils';
+import { delayedDispatch, notEmpty, toIndexOf } from '../../utils';
 import { initialState as tagState, selectTagByValue } from '../tags/slice';
 
 export interface TodoState {
@@ -18,16 +23,19 @@ export const initialState: TodoState = {
       id: nanoid(),
       label: 'This is the first item',
       tags: getTagIds('First tag', 'Second'),
+      notes: '',
     },
     {
       id: nanoid(),
       label: 'This is the second item',
       tags: getTagIds('First tag'),
+      notes: '',
     },
     {
       id: nanoid(),
       label: 'This is the third item',
       tags: [],
+      notes: '',
     },
   ]),
 };
@@ -35,21 +43,43 @@ export const initialState: TodoState = {
 const slice = createSlice({
   name: 'todos',
   initialState,
-  reducers: {},
+  reducers: {
+    upsertTodo: {
+      reducer: (state, action: PayloadAction<Todo>) => {
+        const todo = action.payload;
+        state.items[todo.id] = todo;
+      },
+      prepare: (item: Todo) => ({
+        payload: {
+          ...item,
+          id: item.id ?? nanoid(),
+        },
+      }),
+    },
+  },
 });
 
 type State = RootState | TodoState;
 
 const getTodoState = (state: State): TodoState => (state as any).todos || state;
 
-export interface TodoFilter {}
+const getTodoItems = (state: State) => getTodoState(state).items;
 
-export const selectTodos = (state: State, filter: TodoFilter = {}) =>
-  Object.values(getTodoState(state).items);
+export const selectTodos = createSelector(getTodoItems, items =>
+  Object.values(items),
+);
 
-export const selectTodoById = (state: State, id: Id) =>
-  getTodoState(state).items[id];
+export const selectTodoById = createSelector(
+  [getTodoItems, (_: State, id: Id) => id],
+  (items, id) => items[id],
+);
 
-//export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
+export const { upsertTodo } = slice.actions;
 
 export default slice.reducer;
+
+export const upsertTodoDelayed = delayedDispatch(
+  'playground/insertIfMissingDelayed',
+  2000,
+  upsertTodo,
+);

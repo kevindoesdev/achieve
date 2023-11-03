@@ -14,6 +14,13 @@ const Stack = createStackNavigator();
 
 const APP_TITLE = 'Achieve';
 
+const displayOrder: Screen[] = [
+  // Adding a line to ensure that it's easy for me to adjust screen order
+  TodoList,
+  TodoDetails,
+  Playground,
+];
+
 const makeTitle = (subTitle?: string) => {
   if (!subTitle) {
     return APP_TITLE;
@@ -21,13 +28,6 @@ const makeTitle = (subTitle?: string) => {
 
   return `${APP_TITLE} - ${subTitle}`;
 };
-
-// prettier-ignore
-const displayOrder: Screen[] = [
-  Playground, 
-  TodoList, 
-  TodoDetails
-];
 
 const NavigationStack = () => {
   return (

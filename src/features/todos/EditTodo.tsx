@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TextInput as RNTextInput } from 'react-native';
 import {
   Card,
@@ -10,17 +10,35 @@ import {
   Button,
 } from 'react-native-paper';
 
-import { useAppSelector } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { RootState } from '../../app/store';
+import { InsertOrFetch } from '../../components/InsertOrFetch';
 import { Id, Todo } from '../../types';
-import { selectTagById } from '../tags/slice';
+import {
+  delayedInsertOrFetchTag,
+  selectTagById,
+  selectTagByValue,
+} from '../tags/slice';
 
-interface Props {
+interface EditTodoProps {
   item: Todo;
+  onTodoUpdated: (item: Todo) => void;
 }
 
-export const EditTodo = ({ item }: Props) => {
+export const EditTodo = ({ item, onTodoUpdated }: EditTodoProps) => {
   const [label, setLabel] = useState(item.label);
-  const [notes, setNotes] = useState('');
+  const [tags, setTags] = useState(item.tags);
+  const [notes, setNotes] = useState(item.notes);
+
+  useEffect(() => {
+    onTodoUpdated({
+      id: item.id,
+      label,
+      tags,
+      notes,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [label, tags, notes]);
 
   return (
     <View>
@@ -30,7 +48,7 @@ export const EditTodo = ({ item }: Props) => {
         value={label}
         onChangeText={setLabel}
       />
-      <TagList tags={item.tags} />
+      <TagList onAddTag={tagId => setTags([...tags, tagId])} tags={tags} />
       <TextInput
         style={style.input}
         label="Notes"
@@ -45,9 +63,10 @@ export const EditTodo = ({ item }: Props) => {
 
 interface TagListProps {
   tags: Id[];
+  onAddTag: (id: Id) => void;
 }
 
-const TagList = ({ tags }: TagListProps) => {
+const TagList = ({ tags, onAddTag }: TagListProps) => {
   return (
     <Card mode="contained" style={[style.input, style.card]}>
       <Card.Content style={style.cardContentTitle}>
@@ -58,7 +77,7 @@ const TagList = ({ tags }: TagListProps) => {
           {tags.map(tag => (
             <Tag key={tag} id={tag} />
           ))}
-          <AddChip />
+          <AddTagChip onAddTag={onAddTag} />
         </View>
       </Card.Content>
     </Card>
@@ -100,10 +119,23 @@ const CommonChip = (props: MyChipProps) => (
   </Chip>
 );
 
-const AddChip = () => {
+interface AddChipProps {
+  onAddTag: (id: Id) => void;
+}
+
+const AddTagChip = ({ onAddTag }: AddChipProps) => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [tag, setTag] = useState('');
   const inputRef = useRef<RNTextInput>(null);
+  const dispatch = useAppDispatch();
+
+  const tagIdSelector = (tag: string) => (state: RootState) =>
+    selectTagByValue(state, tag)?.id;
+
+  const onTagSelected = (tagId: string) => {
+    onAddTag(tagId);
+    hideDialog();
+  };
 
   const showDialog = () => {
     setDialogVisible(true);
@@ -114,10 +146,13 @@ const AddChip = () => {
     setTag('');
     setDialogVisible(false);
   };
-  const addTag = (text: string) => {
-    // dispatch upsert tag
-    console.log('Setting tag', text);
-    hideDialog();
+
+  const addTag = async (text: string) => {
+    if (!text) {
+      return false;
+    }
+
+    await dispatch(delayedInsertOrFetchTag(tag));
   };
 
   return (
@@ -129,19 +164,23 @@ const AddChip = () => {
       />
       <Portal>
         <Dialog visible={dialogVisible} onDismiss={hideDialog}>
-          <Dialog.Content>
-            <Text variant="bodyMedium">Enter a tag name</Text>
-            <TextInput
-              ref={inputRef}
-              dense={true}
-              value={tag}
-              onChangeText={setTag}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={hideDialog}>Cancel</Button>
-            <Button onPress={() => addTag(tag)}>Ok</Button>
-          </Dialog.Actions>
+          <InsertOrFetch selector={tagIdSelector(tag)} onReady={onTagSelected}>
+            <Dialog.Content>
+              <Text variant="bodyMedium">Enter a tag name</Text>
+              <TextInput
+                ref={inputRef}
+                dense={true}
+                value={tag}
+                onChangeText={setTag}
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hideDialog}>Cancel</Button>
+              <InsertOrFetch.Button onPress={() => addTag(tag)}>
+                Ok
+              </InsertOrFetch.Button>
+            </Dialog.Actions>
+          </InsertOrFetch>
         </Dialog>
       </Portal>
     </>

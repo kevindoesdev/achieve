@@ -61,14 +61,14 @@ export const InsertOrFetch = ({
 };
 
 export interface InsertOrFetchButtonProps extends ButtonProps {
-  event: InsertOrFetchEvents;
+  event?: InsertOrFetchEvents;
   onPress?:
     | ((e: GestureResponderEvent) => (boolean | void) | Promise<boolean | void>)
     | (() => (boolean | void) | Promise<boolean | void>);
 }
 
 const InsertOrFetchButton = (props: InsertOrFetchButtonProps) => {
-  return <Event.Button {...props} />;
+  return <Event.Button event={InsertOrFetchEvents.Activate} {...props} />;
 };
 
 InsertOrFetch.Button = InsertOrFetchButton;

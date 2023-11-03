@@ -35,6 +35,7 @@ export interface Idable {
 export interface Todo extends Idable {
   label: string;
   tags: Id[];
+  notes: string;
 }
 
 export interface Tag extends Idable {
@@ -59,4 +60,18 @@ export interface RGBAModifier {
   g?: RGBAPropertyModifier;
   b?: RGBAPropertyModifier;
   a?: RGBAPropertyModifier;
+}
+
+export enum JsonType {
+  Object = 'object',
+  Array = 'array',
+  String = 'string',
+  Number = 'number',
+  Boolean = 'boolean',
+  Null = 'null',
+  Undefined = 'undefined',
+}
+
+export interface CompareOptions {
+  emptyStringEqualsUndefined?: boolean;
 }

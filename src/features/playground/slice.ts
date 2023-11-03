@@ -7,6 +7,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import { RootState } from '../../app/store';
+import { delayedDispatch } from '../../utils';
 
 export interface PlaygroundState {
   insertOrFetch: InsertOrFetch;
@@ -42,16 +43,6 @@ export const initialState: PlaygroundState = {
     { id: nanoid(), value: 'Blue' },
   ]),
 };
-
-export const insertIfMissingDelayed = createAsyncThunk(
-  'playground/insertIfMissingDelayed',
-  // The payload creator receives the partial `{title, content, user}` object
-  async (value: string, thunkAPI) => {
-    await new Promise(r => setTimeout(r, 2000));
-
-    thunkAPI.dispatch(insertIfMissing(value));
-  },
-);
 
 const slice = createSlice({
   name: 'playground',
@@ -89,10 +80,6 @@ const getPlayground = (state: State): PlaygroundState =>
 const getInsertOrFetch = (state: RootState) =>
   getPlayground(state).insertOrFetch;
 
-export const __selectAllIoF = (state: State) => {
-  return Object.values(getPlayground(state).insertOrFetch);
-};
-
 export const selectAllIoF = createSelector(getInsertOrFetch, insertOrFetch =>
   Object.values(insertOrFetch),
 );
@@ -105,3 +92,9 @@ export const selectIoFByValue = (state: State, value: string) =>
 export const { insertIfMissing } = slice.actions;
 
 export default slice.reducer;
+
+export const insertIfMissingDelayed = delayedDispatch(
+  'playground/insertIfMissingDelayed',
+  2000,
+  insertIfMissing,
+);

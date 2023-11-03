@@ -1,5 +1,3 @@
-import { View } from 'react-native';
-
 import TopBar from '../components/TopBar';
 import Playground from '../features/playground';
 import { Screens, Screen, ScreenProps } from '../types';

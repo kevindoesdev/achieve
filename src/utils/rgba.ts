@@ -1,18 +1,7 @@
-import { Idable, IndexOf, RGBAModifier, RGBAPropertyModifier } from './types';
-
-export const toIndexOf = <T extends Idable>(items: T[]): IndexOf<T> => {
-  const result: IndexOf<T> = {};
-  items.forEach(item => {
-    result[item.id] = item;
-  });
-  return result;
-};
-
-export const notEmpty = <TValue>(
-  value: TValue | null | undefined,
-): value is TValue => value !== null && value !== undefined;
+import { RGBAModifier, RGBAPropertyModifier } from '../types';
 
 const rgbaMatcher = /^rgba\(([0-9.]+), ([0-9.]+), ([0-9.]+), ([0-9.]+)\)$/;
+
 export const modifyRGBA = (
   original: string,
   { r, g, b, a }: RGBAModifier,
