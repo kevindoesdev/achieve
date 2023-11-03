@@ -5,6 +5,7 @@ import { PaperProvider, useTheme } from 'react-native-paper';
 import { Provider } from 'react-redux';
 
 import { store } from './store';
+import { AppSnackBar } from '../components/AppSnackBar';
 import Playground from '../screens/PlaygroundScreen';
 import TodoDetails from '../screens/TodoDetailsScreen';
 import TodoList from '../screens/TodoListScreen';
@@ -55,9 +56,11 @@ export default function App() {
           backgroundColor={theme.colors.inversePrimary}
           translucent={false}
         />
-        <NavigationContainer>
-          <NavigationStack />
-        </NavigationContainer>
+        <AppSnackBar>
+          <NavigationContainer>
+            <NavigationStack />
+          </NavigationContainer>
+        </AppSnackBar>
       </PaperProvider>
     </Provider>
   );

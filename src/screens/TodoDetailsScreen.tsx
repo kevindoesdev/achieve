@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { AppSnackBarContext } from '../components/AppSnackBar';
 import { SpinnerMask } from '../components/SpinnerMask';
 import TopBar from '../components/TopBar';
 import { EditTodo } from '../features/todos/EditTodo';
@@ -19,6 +20,7 @@ export const TodoDetailsScreen = ({
   route,
 }: ScreenProps<TodoDetailsScreenProps>) => {
   const { id } = route.params;
+  const appSnackBar = useContext(AppSnackBarContext);
   const [showSave, setShowSave] = useState(false);
   const [maskVisible, setMaskVisible] = useState(false);
 
@@ -51,7 +53,15 @@ export const TodoDetailsScreen = ({
     goBack();
   };
 
-  const onBackWithoutSave = goBack;
+  const onBackWithoutSave = () => {
+    appSnackBar.activate({
+      message: 'i wonder if this will work',
+      actionText: 'Save',
+      onAction: saveTodo,
+    });
+
+    goBack();
+  };
 
   return (
     <View>
@@ -60,7 +70,10 @@ export const TodoDetailsScreen = ({
         onIconPress={onBackWithoutSave}
         actionText="Save"
         showAction={showSave}
-        onAction={saveTodo}
+        onAction={async () => {
+          await saveTodo();
+          goBack();
+        }}
       />
       <ScrollView>
         <SpinnerMask visible={maskVisible}>
