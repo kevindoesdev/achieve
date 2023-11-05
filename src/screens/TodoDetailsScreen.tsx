@@ -11,6 +11,7 @@ import {
   selectTodoById,
   upsertTodoDelayed,
 } from '../features/todos/slice';
+import { validateTodo } from '../features/todos/validate';
 import { Screens } from '../types';
 import type { Id, Screen, ScreenProps, Todo } from '../types';
 import { different } from '../utils';
@@ -27,28 +28,36 @@ export const TodoDetailsScreen = ({
   const [showSave, setShowSave] = useState(false);
   const [maskVisible, setMaskVisible] = useState(false);
   const [updatedTodo, setUpdatedTodo] = useState({} as Todo);
+  const [validate, setValidate] = useState(false);
 
   const dispatch = useAppDispatch();
 
   const goBack = () => navigation.navigate(Screens.TodoList);
 
   const saveTodo = async () => {
-    if (showSave) {
-      setMaskVisible(true);
-      await dispatch(upsertTodoDelayed(updatedTodo));
-      setMaskVisible(false);
+    const { isValid } = validateTodo(updatedTodo);
+    if (!isValid) {
+      setValidate(true);
+      return;
     }
+
+    setMaskVisible(true);
+    await dispatch(upsertTodoDelayed(updatedTodo));
+    setMaskVisible(false);
 
     goBack();
   };
 
   const onBackWithoutSave = () => {
     if (showSave) {
-      appSnackBar.activate({
-        message: 'Your changes were not saved',
-        actionText: 'Save them now',
-        onAction: () => dispatch(upsertTodoDelayed(updatedTodo)),
-      });
+      const { isValid } = validateTodo(updatedTodo);
+      if (isValid) {
+        appSnackBar.activate({
+          message: 'Your changes were not saved',
+          actionText: 'Save now',
+          onAction: () => dispatch(upsertTodoDelayed(updatedTodo)),
+        });
+      }
     }
 
     goBack();
@@ -61,10 +70,7 @@ export const TodoDetailsScreen = ({
         onIconPress={onBackWithoutSave}
         actionText="Save"
         showAction={showSave}
-        onAction={async () => {
-          await saveTodo();
-          goBack();
-        }}
+        onAction={saveTodo}
       />
       <ScrollView>
         <SpinnerMask visible={maskVisible}>
@@ -73,11 +79,13 @@ export const TodoDetailsScreen = ({
               id={route.params.id}
               onShowSave={() => setShowSave(true)}
               onTodoUpdated={setUpdatedTodo}
+              validate={validate}
             />
           ) : (
             <NewTodo
               onShowSave={() => setShowSave(true)}
               onTodoUpdated={setUpdatedTodo}
+              validate={validate}
             />
           )}
         </SpinnerMask>
@@ -89,6 +97,7 @@ export const TodoDetailsScreen = ({
 interface CommonEditProps {
   onShowSave: () => void;
   onTodoUpdated: (todo: Todo) => void;
+  validate: boolean;
 }
 
 interface EditTodoWrapperProps extends CommonEditProps {
@@ -99,6 +108,7 @@ const EditTodoWrapper = ({
   id,
   onShowSave,
   onTodoUpdated,
+  validate,
 }: EditTodoWrapperProps) => {
   const todo = useAppSelector(state => selectTodoById(state, id));
   const [updatedTodo, setUpdatedTodo] = useState(todo);
@@ -119,12 +129,14 @@ const EditTodoWrapper = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatedTodo]);
 
-  return <EditTodo item={todo} onTodoUpdated={setUpdatedTodo} />;
+  return (
+    <EditTodo item={todo} onTodoUpdated={setUpdatedTodo} validate={validate} />
+  );
 };
 
 interface NewTodoProps extends CommonEditProps {}
 
-const NewTodo = ({ onShowSave, onTodoUpdated }: NewTodoProps) => {
+const NewTodo = ({ onShowSave, onTodoUpdated, validate }: NewTodoProps) => {
   const [todo] = useState(makeNewTodo()); //useAppSelector(() => makeNewTodo());
   const [initComplete, setInitComplete] = useState(false);
 
@@ -135,7 +147,9 @@ const NewTodo = ({ onShowSave, onTodoUpdated }: NewTodoProps) => {
     setInitComplete(true);
   }
 
-  return <EditTodo item={todo} onTodoUpdated={onTodoUpdated} />;
+  return (
+    <EditTodo item={todo} onTodoUpdated={onTodoUpdated} validate={validate} />
+  );
 };
 
 const screen: Screen = {

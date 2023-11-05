@@ -38,6 +38,12 @@ export interface Todo extends Idable {
   notes: string;
 }
 
+export enum TodoProperty {
+  Label = 'label',
+  Tags = 'tags',
+  Notes = 'notes',
+}
+
 export interface Tag extends Idable {
   label: string;
 }
@@ -74,4 +80,14 @@ export enum JsonType {
 
 export interface CompareOptions {
   emptyStringEqualsUndefined?: boolean;
+}
+
+export interface ValidationError {
+  property: TodoProperty;
+  message: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
 }

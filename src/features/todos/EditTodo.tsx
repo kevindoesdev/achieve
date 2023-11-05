@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TextInput as RNTextInput } from 'react-native';
 import {
   Card,
@@ -8,12 +8,14 @@ import {
   Portal,
   Dialog,
   Button,
+  useTheme,
 } from 'react-native-paper';
 
+import { validateTodo } from './validate';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { RootState } from '../../app/store';
 import { InsertOrFetch } from '../../components/InsertOrFetch';
-import { Id, Todo } from '../../types';
+import { Id, Todo, IndexOf, ValidationResult, TodoProperty } from '../../types';
 import { different } from '../../utils';
 import {
   delayedInsertOrFetchTag,
@@ -24,14 +26,19 @@ import {
 export interface EditTodoProps {
   item: Todo;
   onTodoUpdated: (item: Todo) => void;
+  validate?: boolean;
 }
 
-export const EditTodo = ({ item, onTodoUpdated }: EditTodoProps) => {
+export const EditTodo = ({
+  item,
+  onTodoUpdated,
+  validate = false,
+}: EditTodoProps) => {
   const [label, setLabel] = useState(item.label);
   const [tags, setTags] = useState(item.tags);
   const [notes, setNotes] = useState(item.notes);
 
-  const makeTodo = () => ({
+  const makeTodo = (): Todo => ({
     id: item.id,
     label,
     tags,
@@ -39,6 +46,28 @@ export const EditTodo = ({ item, onTodoUpdated }: EditTodoProps) => {
   });
 
   const [updatedTodo, setUpdatedTodo] = useState(makeTodo());
+
+  const [errors, setErrors] = useState({} as IndexOf<string>);
+
+  useEffect(() => {
+    const { isValid, errors }: ValidationResult = validate
+      ? validateTodo(makeTodo())
+      : { isValid: true, errors: [] };
+
+    const validation: IndexOf<string> = {};
+
+    setErrors({});
+
+    if (!isValid) {
+      errors.forEach(error => {
+        validation[error.property] =
+          validation[error.property] || error.message;
+      });
+    }
+
+    setErrors(validation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validate, label, tags, notes]);
 
   useEffect(() => {
     const todo = makeTodo();
@@ -55,12 +84,15 @@ export const EditTodo = ({ item, onTodoUpdated }: EditTodoProps) => {
 
   return (
     <View>
-      <TextInput
-        style={style.input}
-        label="Label"
-        value={label}
-        onChangeText={setLabel}
-      />
+      <InputWrapper error={errors[TodoProperty.Label]}>
+        <TextInput
+          error={!!errors[TodoProperty.Label]}
+          style={style.input}
+          label="Label"
+          value={label}
+          onChangeText={setLabel}
+        />
+      </InputWrapper>
       <TagList onAddTag={tagId => setTags([...tags, tagId])} tags={tags} />
       <TextInput
         style={style.input}
@@ -100,6 +132,32 @@ const TagList = ({ tags, onAddTag }: TagListProps) => {
 interface TagProps {
   id: Id;
 }
+
+interface InputWrapperProps {
+  error: string;
+}
+
+const InputWrapper = ({
+  error,
+  children,
+}: PropsWithChildren<InputWrapperProps>) => {
+  const theme = useTheme();
+
+  return (
+    <>
+      {children}
+      {error ? (
+        <Text
+          variant="labelLarge"
+          style={{ marginLeft: 16, color: theme.colors.error }}>
+          {error}
+        </Text>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
 
 const Tag = ({ id }: TagProps) => {
   const tag = useAppSelector(state => selectTagById(state, id));
