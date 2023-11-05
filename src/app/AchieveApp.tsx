@@ -1,10 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { PaperProvider, useTheme } from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
 import { Provider } from 'react-redux';
 
 import { store } from './store';
+import * as themes from './themes';
 import { AppSnackBar } from '../components/AppSnackBar';
 import Playground from '../screens/PlaygroundScreen';
 import TodoDetails from '../screens/TodoDetailsScreen';
@@ -46,11 +47,11 @@ const NavigationStack = () => {
 };
 
 export default function App() {
-  const theme = useTheme();
+  const theme = themes.conservation.light;
 
   return (
     <Provider store={store}>
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <StatusBar
           style="dark"
           backgroundColor={theme.colors.inversePrimary}

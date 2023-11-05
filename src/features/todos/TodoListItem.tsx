@@ -52,6 +52,7 @@ const Composite = ({ item }: CompositeProps) => {
           <Chip
             key={tag.label}
             style={{ marginHorizontal: 4 }}
+            mode="outlined"
             compact={true}
             elevated={true}>
             {tag.label}

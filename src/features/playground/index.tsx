@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 
 import { Divider } from './Divider';
@@ -15,7 +15,7 @@ const benches: Bench[] = [
 
 const Playground = () => {
   return (
-    <ScrollView style={{ padding: 16 }}>
+    <View style={{ padding: 16 }}>
       {benches.map(bench => (
         <View key={bench.title} style={styles.bench}>
           <Text variant="headlineMedium">{bench.title}</Text>
@@ -34,7 +34,7 @@ const Playground = () => {
         </View>
       ))}
       <Spacer height={100} />
-    </ScrollView>
+    </View>
   );
 };
 

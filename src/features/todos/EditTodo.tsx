@@ -14,13 +14,14 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { RootState } from '../../app/store';
 import { InsertOrFetch } from '../../components/InsertOrFetch';
 import { Id, Todo } from '../../types';
+import { different } from '../../utils';
 import {
   delayedInsertOrFetchTag,
   selectTagById,
   selectTagByValue,
 } from '../tags/slice';
 
-interface EditTodoProps {
+export interface EditTodoProps {
   item: Todo;
   onTodoUpdated: (item: Todo) => void;
 }
@@ -30,15 +31,27 @@ export const EditTodo = ({ item, onTodoUpdated }: EditTodoProps) => {
   const [tags, setTags] = useState(item.tags);
   const [notes, setNotes] = useState(item.notes);
 
+  const makeTodo = () => ({
+    id: item.id,
+    label,
+    tags,
+    notes,
+  });
+
+  const [updatedTodo, setUpdatedTodo] = useState(makeTodo());
+
   useEffect(() => {
-    onTodoUpdated({
-      id: item.id,
-      label,
-      tags,
-      notes,
-    });
+    const todo = makeTodo();
+    if (different(todo, updatedTodo, { emptyStringEqualsUndefined: true })) {
+      setUpdatedTodo(todo);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [label, tags, notes]);
+
+  useEffect(() => {
+    onTodoUpdated(updatedTodo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatedTodo]);
 
   return (
     <View>

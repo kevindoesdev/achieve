@@ -6,45 +6,34 @@ import { AppSnackBarContext } from '../components/AppSnackBar';
 import { SpinnerMask } from '../components/SpinnerMask';
 import TopBar from '../components/TopBar';
 import { EditTodo } from '../features/todos/EditTodo';
-import { selectTodoById, upsertTodoDelayed } from '../features/todos/slice';
+import {
+  makeNewTodo,
+  selectTodoById,
+  upsertTodoDelayed,
+} from '../features/todos/slice';
 import { Screens } from '../types';
 import type { Id, Screen, ScreenProps, Todo } from '../types';
 import { different } from '../utils';
 
 interface TodoDetailsScreenProps {
-  id: Id;
+  id?: Id;
 }
 
 export const TodoDetailsScreen = ({
   navigation,
   route,
 }: ScreenProps<TodoDetailsScreenProps>) => {
-  const { id } = route.params;
   const appSnackBar = useContext(AppSnackBarContext);
   const [showSave, setShowSave] = useState(false);
   const [maskVisible, setMaskVisible] = useState(false);
-
-  const todo = useAppSelector(state => selectTodoById(state, id));
-  const [updatedTodo, setUpdatedTodo] = useState(todo);
+  const [updatedTodo, setUpdatedTodo] = useState({} as Todo);
 
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (!showSave && todoHasChanges()) {
-      setShowSave(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updatedTodo]);
-
-  const todoHasChanges = () =>
-    different(todo, updatedTodo, {
-      emptyStringEqualsUndefined: true,
-    });
 
   const goBack = () => navigation.navigate(Screens.TodoList);
 
   const saveTodo = async () => {
-    if (todoHasChanges()) {
+    if (showSave) {
       setMaskVisible(true);
       await dispatch(upsertTodoDelayed(updatedTodo));
       setMaskVisible(false);
@@ -54,11 +43,13 @@ export const TodoDetailsScreen = ({
   };
 
   const onBackWithoutSave = () => {
-    appSnackBar.activate({
-      message: 'i wonder if this will work',
-      actionText: 'Save',
-      onAction: saveTodo,
-    });
+    if (showSave) {
+      appSnackBar.activate({
+        message: 'Your changes were not saved',
+        actionText: 'Save them now',
+        onAction: () => dispatch(upsertTodoDelayed(updatedTodo)),
+      });
+    }
 
     goBack();
   };
@@ -77,11 +68,74 @@ export const TodoDetailsScreen = ({
       />
       <ScrollView>
         <SpinnerMask visible={maskVisible}>
-          <EditTodo item={todo} onTodoUpdated={setUpdatedTodo} />
+          {route.params.id ? (
+            <EditTodoWrapper
+              id={route.params.id}
+              onShowSave={() => setShowSave(true)}
+              onTodoUpdated={setUpdatedTodo}
+            />
+          ) : (
+            <NewTodo
+              onShowSave={() => setShowSave(true)}
+              onTodoUpdated={setUpdatedTodo}
+            />
+          )}
         </SpinnerMask>
       </ScrollView>
     </View>
   );
+};
+
+interface CommonEditProps {
+  onShowSave: () => void;
+  onTodoUpdated: (todo: Todo) => void;
+}
+
+interface EditTodoWrapperProps extends CommonEditProps {
+  id: Id;
+}
+
+const EditTodoWrapper = ({
+  id,
+  onShowSave,
+  onTodoUpdated,
+}: EditTodoWrapperProps) => {
+  const todo = useAppSelector(state => selectTodoById(state, id));
+  const [updatedTodo, setUpdatedTodo] = useState(todo);
+  const [onSaveFired, setOnSaveFired] = useState(false);
+
+  const todoHasChanges = () =>
+    different(todo, updatedTodo, {
+      emptyStringEqualsUndefined: true,
+    });
+
+  useEffect(() => {
+    if (!onSaveFired && todoHasChanges()) {
+      setOnSaveFired(true);
+      onShowSave();
+    }
+
+    onTodoUpdated(updatedTodo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatedTodo]);
+
+  return <EditTodo item={todo} onTodoUpdated={setUpdatedTodo} />;
+};
+
+interface NewTodoProps extends CommonEditProps {}
+
+const NewTodo = ({ onShowSave, onTodoUpdated }: NewTodoProps) => {
+  const [todo] = useState(makeNewTodo()); //useAppSelector(() => makeNewTodo());
+  const [initComplete, setInitComplete] = useState(false);
+
+  if (!initComplete) {
+    setTimeout(() => {
+      onShowSave();
+    }, 1);
+    setInitComplete(true);
+  }
+
+  return <EditTodo item={todo} onTodoUpdated={onTodoUpdated} />;
 };
 
 const screen: Screen = {

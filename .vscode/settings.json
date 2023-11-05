@@ -1,9 +1,3 @@
 {
-  "cSpell.words": [
-    "Idable",
-    "logfn",
-    "Pressable",
-    "reduxjs",
-    "todos"
-  ]
+  "cSpell.words": ["Idable", "logfn", "Pressable", "reduxjs", "todos", "upsert"]
 }

@@ -17,6 +17,15 @@ export interface TodoState {
 const getTagIds = (...tags: string[]): Id[] =>
   tags.map(tag => selectTagByValue(tagState, tag)?.id).filter(notEmpty);
 
+export const makeNewTodo = (): Todo => {
+  return {
+    id: '',
+    label: '',
+    tags: [],
+    notes: '',
+  };
+};
+
 export const initialState: TodoState = {
   items: toIndexOf([
     {
@@ -52,7 +61,7 @@ const slice = createSlice({
       prepare: (item: Todo) => ({
         payload: {
           ...item,
-          id: item.id ?? nanoid(),
+          id: item.id ? item.id : nanoid(),
         },
       }),
     },

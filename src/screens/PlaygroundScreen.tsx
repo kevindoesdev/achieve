@@ -1,3 +1,5 @@
+import { ScrollView } from 'react-native';
+
 import TopBar from '../components/TopBar';
 import Playground from '../features/playground';
 import { Screens, Screen, ScreenProps } from '../types';
@@ -8,7 +10,9 @@ export const PlaygroundScreen = ({ navigation }: ScreenProps<object>) => (
       icon="keyboard-backspace"
       onIconPress={() => navigation.navigate(Screens.TodoList)}
     />
-    <Playground />
+    <ScrollView>
+      <Playground />
+    </ScrollView>
   </>
 );
 
