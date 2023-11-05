@@ -16,8 +16,13 @@ const TodoListItem = ({ item, onItemPress }: TodoListItemProps) => {
 
   return (
     <View key={item.id} style={styles.container}>
-      <IconButton icon="checkbox-blank-outline" size={24} />
+      <IconButton
+        icon="checkbox-blank-outline"
+        size={24}
+        style={{ marginTop: 16 }}
+      />
       <Pressable
+        style={{ width: '100%', paddingVertical: 16 }}
         onPress={() => {
           onItemPress(item.id);
         }}>
@@ -78,19 +83,17 @@ const LabelOnly = ({ label }: LabelOnlyProps) => (
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    marginTop: 16,
+    //marginTop: 16,
     borderBottomColor: 'grey',
     borderStyle: 'dotted',
     borderBottomWidth: 1,
-    paddingBottom: 16,
+    //paddingBottom: 16,
   },
-  labelOnlyTextContainer: Object.assign(
-    {
-      flexDirection: 'column',
-      flex: 1,
-    },
-    Platform.OS === 'web' ? { paddingTop: 14 } : {},
-  ),
+  labelOnlyTextContainer: Object.assign({
+    flexDirection: 'column',
+    flex: 1,
+    paddingVertical: 8,
+  }),
   labelOnlyText: { flex: 1, verticalAlign: 'middle' },
 } as any);
 

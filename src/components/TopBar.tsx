@@ -32,7 +32,8 @@ const TopBar = ({
   return (
     <View
       style={{
-        height: 48,
+        height: 64,
+        paddingTop: 6,
         backgroundColor: theme.colors.primary,
         flexDirection: 'row',
         justifyContent: 'space-between',
