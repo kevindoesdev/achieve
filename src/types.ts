@@ -2,7 +2,7 @@ import { NavigationProp as NativeNavigationProp } from '@react-navigation/native
 
 export enum Screens {
   Playground = 'PLAYGROUND',
-  TodoDetails = 'TODO_DETAILS',
+  EditTodo = 'EDIT_TODO',
   TodoList = 'TODO_LIST',
 }
 

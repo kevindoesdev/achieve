@@ -32,13 +32,14 @@ export const initialState: TodoState = {
       id: nanoid(),
       label: 'This is the first item',
       tags: getTagIds('First tag', 'Second'),
-      notes: '',
+      notes: 'This is a short note.',
     },
     {
       id: nanoid(),
       label: 'This is the second item',
       tags: getTagIds('First tag'),
-      notes: '',
+      notes:
+        'https://asdf.com Over the course of the ~2.5 years, I’ve been reading around the topic of personal knowledge management (PKM) and related areas like note-taking and metacognition. In trying to adopt better ways to understand how I collect, digest, organise, and combine things I learn (aka PKM), I have also gotten more serious about the tools I use, and have been trying out a few different ones.',
     },
     {
       id: nanoid(),

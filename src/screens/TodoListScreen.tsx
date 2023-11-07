@@ -13,19 +13,19 @@ export const TodoListScreen = ({ navigation }: ScreenProps<object>) => {
 
   const todos = useAppSelector(state => selectTodos(state));
 
-  const onItemPress = (id: string) => {
-    navigation.navigate(Screens.TodoDetails, { id });
+  const onEdit = (id: string) => {
+    navigation.navigate(Screens.EditTodo, { id });
   };
 
   const onFABPress = () => {
-    navigation.navigate(Screens.TodoDetails, {});
+    navigation.navigate(Screens.EditTodo, {});
   };
 
   return (
     <>
       <TopBar icon="menu" />
       <ScrollView>
-        <TodoList items={todos} onItemPress={onItemPress} />
+        <TodoList items={todos} onEdit={onEdit} />
       </ScrollView>
       <FAB
         icon="plus"

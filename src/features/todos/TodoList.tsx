@@ -3,14 +3,14 @@ import type { Id, Todo } from '../../types';
 
 interface Props {
   items: Todo[];
-  onItemPress?: (id: Id) => void;
+  onEdit: (id: Id) => void;
 }
 
-export default ({ items, onItemPress }: Props) => {
+export default ({ items, onEdit }: Props) => {
   return (
     <>
       {items.map(item => (
-        <TodoListItem key={item.id} item={item} onItemPress={onItemPress} />
+        <TodoListItem key={item.id} item={item} onEdit={onEdit} />
       ))}
     </>
   );

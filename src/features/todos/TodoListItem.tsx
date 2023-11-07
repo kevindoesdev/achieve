@@ -5,27 +5,59 @@ import { useAppSelector } from '../../app/hooks';
 import { Id, Todo } from '../../types';
 import { notEmpty } from '../../utils';
 import { selectTagById } from '../tags/slice';
+import { useEffect, useState } from 'react';
 
 interface TodoListItemProps {
   item: Todo;
-  onItemPress: (id: Id) => void;
+  onEdit: (id: Id) => void;
 }
 
-const TodoListItem = ({ item, onItemPress }: TodoListItemProps) => {
+enum ActionIcon {
+  OpenDrawer = 'chevron-down',
+  Edit = 'square-edit-outline',
+}
+
+const TodoListItem = ({ item, onEdit }: TodoListItemProps) => {
   const labelOnly = !item.tags.length;
+
+  const [primaryIcon, setPrimaryIcon] = useState(ActionIcon.OpenDrawer);
+  const [pressing, setPressing] = useState(false);
+  const [pressingTimeout, setPressingTimeout] = useState(
+    null as unknown as NodeJS.Timeout,
+  );
+
+  useEffect(() => {
+    clearTimeout(pressingTimeout);
+    if (pressing) {
+      const timeout = setTimeout(() => {
+        setPrimaryIcon(ActionIcon.Edit);
+      }, 100);
+
+      setPressingTimeout(timeout);
+    } else {
+      setPrimaryIcon(ActionIcon.OpenDrawer);
+    }
+  }, [pressing]);
 
   return (
     <View key={item.id} style={styles.container}>
       <IconButton
-        icon="checkbox-blank-outline"
-        size={24}
-        style={{ marginTop: 16 }}
+        icon={primaryIcon}
+        size={36}
+        style={{ marginTop: 8 }}
+        onPressIn={() => {
+          setPressing(true);
+        }}
+        onPressOut={() => {
+          setPressing(false);
+        }}
+        onLongPress={() => {
+          onEdit(item.id);
+        }}
       />
       <Pressable
         style={{ width: '100%', paddingVertical: 16 }}
-        onPress={() => {
-          onItemPress(item.id);
-        }}>
+        onPress={() => {}}>
         {labelOnly ? (
           <LabelOnly label={item.label} />
         ) : (

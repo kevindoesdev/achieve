@@ -16,14 +16,14 @@ import { Screens } from '../types';
 import type { Id, Screen, ScreenProps, Todo } from '../types';
 import { different } from '../utils';
 
-interface TodoDetailsScreenProps {
+interface EditTodoScreenProps {
   id?: Id;
 }
 
-export const TodoDetailsScreen = ({
+export const EditTodoScreen = ({
   navigation,
   route,
-}: ScreenProps<TodoDetailsScreenProps>) => {
+}: ScreenProps<EditTodoScreenProps>) => {
   const appSnackBar = useContext(AppSnackBarContext);
   const [showSave, setShowSave] = useState(false);
   const [maskVisible, setMaskVisible] = useState(false);
@@ -153,8 +153,8 @@ const NewTodo = ({ onShowSave, onTodoUpdated, validate }: NewTodoProps) => {
 };
 
 const screen: Screen = {
-  name: Screens.TodoDetails,
-  screen: TodoDetailsScreen,
+  name: Screens.EditTodo,
+  screen: EditTodoScreen,
 };
 
 export default screen;

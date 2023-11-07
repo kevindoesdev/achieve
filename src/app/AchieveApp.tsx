@@ -7,8 +7,8 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import * as themes from './themes';
 import { AppSnackBar } from '../components/AppSnackBar';
+import EditTodo from '../screens/EditTodoScreen';
 import Playground from '../screens/PlaygroundScreen';
-import TodoDetails from '../screens/TodoDetailsScreen';
 import TodoList from '../screens/TodoListScreen';
 import { Screen } from '../types';
 
@@ -19,7 +19,7 @@ const APP_TITLE = 'Achieve';
 const displayOrder: Screen[] = [
   // Adding a line to ensure that it's easy for me to adjust screen order
   TodoList,
-  TodoDetails,
+  EditTodo,
   Playground,
 ];
 
